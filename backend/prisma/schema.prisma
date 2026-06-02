@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships SpaceMember[]
+}
+
+model Space {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members  SpaceMember[]
+  products Product[]
+}
+
+model SpaceMember {
+  id        String   @id @default(uuid())
+  role      Role     @default(VIEWER)
+  joinedAt  DateTime @default(now())
+
+  userId  String
+  spaceId String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  space   Space  @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, spaceId])
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String?
+  createdAt DateTime @default(now())
+
+  products Product[]
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  name         String
+  barcode      String?
+  quantity      Int      @default(0)
+  minQuantity  Int      @default(1)
+  unit         String   @default("unidad")
+  imageUrl     String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  spaceId    String
+  categoryId String?
+  space      Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  movements Movement[]
+}
+
+model Movement {
+  id        String       @id @default(uuid())
+  type      MovementType
+  quantity  Int
+  note      String?
+  createdAt DateTime     @default(now())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}

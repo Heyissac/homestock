@@ -52,4 +52,4 @@ export async function loginUser(data: LoginInput) {
     )
 
     return { token, user: { id: user.id, name: user.name, email: user.email } }
-}
+} //commit

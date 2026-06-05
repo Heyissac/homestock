@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { LoginForm } from './features/auth/components/LoginForm';
 import { RegisterForm } from './features/auth/components/RegisterForm';
 import { isAuthenticated } from './features/auth/services/auth.service';
+import { SpacesPage } from './features/spaces/components/SpacesPage';
 
 function AuthPage() {
   const [view, setView] = useState<'login' | 'register'>('login');
@@ -57,7 +58,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <SpacesPage />
             </ProtectedRoute>
           }
         />

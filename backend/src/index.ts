@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import authRouter from './features/auth/routes/auth.routes'
+import spaceRouter from './features/spaces/routes/space.routes';
 
 dotenv.config()
 
@@ -22,7 +23,7 @@ app.get('/health', (_req, res) => {
 
 // Placeholder de rutas — las iremos agregando por feature
 app.use('/api/auth', authRouter)
-// app.use('/api/spaces', spacesRouter)
+app.use('/api/spaces', spaceRouter);
 // app.use('/api/inventory', inventoryRouter)
 
 // Middleware de errores globales — siempre al final

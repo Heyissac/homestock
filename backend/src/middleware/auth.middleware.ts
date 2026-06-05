@@ -1,3 +1,11 @@
+declare global {
+    namespace Express {
+        interface Request {
+            userId?: string;
+        }
+    }
+}
+
 import type { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 

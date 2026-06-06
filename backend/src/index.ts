@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import authRouter from './features/auth/routes/auth.routes'
 import spaceRouter from './features/spaces/routes/space.routes';
 import productRoutes from './features/inventory/routes/product.routes';
+import categoryRoutes from './features/inventory/routes/category.routes';
 
 dotenv.config()
 
@@ -26,6 +27,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth', authRouter)
 app.use('/api/spaces', spaceRouter);
 app.use('/api/spaces/:spaceId/products', productRoutes);
+app.use('/api/spaces/:spaceId/categories', categoryRoutes);
 
 // Middleware de errores globales — siempre al final
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

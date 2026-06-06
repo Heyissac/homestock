@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import authRouter from './features/auth/routes/auth.routes'
 import spaceRouter from './features/spaces/routes/space.routes';
+import productRoutes from './features/inventory/routes/product.routes';
 
 dotenv.config()
 
@@ -24,7 +25,7 @@ app.get('/health', (_req, res) => {
 // Placeholder de rutas — las iremos agregando por feature
 app.use('/api/auth', authRouter)
 app.use('/api/spaces', spaceRouter);
-// app.use('/api/inventory', inventoryRouter)
+app.use('/api/spaces/:spaceId/products', productRoutes);
 
 // Middleware de errores globales — siempre al final
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

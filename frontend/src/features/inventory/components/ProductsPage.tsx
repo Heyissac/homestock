@@ -1,20 +1,28 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
+import { useCategories } from '../hooks/useCategories';
 import { ProductCard } from './ProductCard';
 import { CreateProductForm } from './CreateProductForm';
+import { CreateCategoryForm } from './CreateCategoryForm';
 import type { CreateProductInput } from '../types/product.types';
+import type { CreateCategoryInput } from '../types/category.types';
 
 export function ProductsPage() {
     const { spaceId } = useParams<{ spaceId: string }>();
     const navigate = useNavigate();
-    const { products, loading, error, addProduct, removeProduct } = useProducts(spaceId!);
+    const { products, loading: loadingProducts, error: errorProducts, addProduct, removeProduct } = useProducts(spaceId!);
+    const { categories, loading: loadingCategories, addCategory } = useCategories(spaceId!);
 
-    async function handleAdd(input: CreateProductInput) {
+    async function handleAddProduct(input: CreateProductInput) {
         await addProduct(input);
     }
 
-    async function handleDelete(productId: string) {
+    async function handleDeleteProduct(productId: string) {
         await removeProduct(productId);
+    }
+
+    async function handleAddCategory(input: CreateCategoryInput) {
+        await addCategory(input);
     }
 
     return (
@@ -29,12 +37,17 @@ export function ProductsPage() {
                 <h1 className="text-2xl font-bold">Productos</h1>
             </div>
 
-            <CreateProductForm onSubmit={handleAdd} />
+            <CreateCategoryForm onSubmit={handleAddCategory} />
 
-            {loading && <p className="text-gray-500">Cargando...</p>}
-            {error && <p className="text-red-500">{error}</p>}
+            <CreateProductForm
+                onSubmit={handleAddProduct}
+                categories={categories}
+            />
 
-            {!loading && products.length === 0 && (
+            {(loadingProducts || loadingCategories) && <p className="text-gray-500">Cargando...</p>}
+            {errorProducts && <p className="text-red-500">{errorProducts}</p>}
+
+            {!loadingProducts && products.length === 0 && (
                 <p className="text-gray-400 text-sm">No hay productos en este space todavía.</p>
             )}
 
@@ -43,7 +56,7 @@ export function ProductsPage() {
                     <ProductCard
                         key={product.id}
                         product={product}
-                        onDelete={handleDelete}
+                        onDelete={handleDeleteProduct}
                         canDelete={true}
                     />
                 ))}

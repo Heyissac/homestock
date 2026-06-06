@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import type { CreateProductInput } from '../types/product.types';
+import type { Category } from '../types/category.types';
 
 interface CreateProductFormProps {
     onSubmit: (input: CreateProductInput) => Promise<void>;
+    categories: Category[];
 }
 
-export function CreateProductForm({ onSubmit }: CreateProductFormProps) {
+export function CreateProductForm({ onSubmit, categories }: CreateProductFormProps) {
     const [name, setName] = useState('');
     const [quantity, setQuantity] = useState(0);
     const [minQuantity, setMinQuantity] = useState(1);
     const [unit, setUnit] = useState('unidad');
     const [notes, setNotes] = useState('');
+    const [categoryId, setCategoryId] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -23,12 +26,20 @@ export function CreateProductForm({ onSubmit }: CreateProductFormProps) {
         try {
             setLoading(true);
             setError(null);
-            await onSubmit({ name, quantity, minQuantity, unit, notes: notes || undefined });
+            await onSubmit({
+                name,
+                quantity,
+                minQuantity,
+                unit,
+                notes: notes || undefined,
+                categoryId: categoryId || undefined,
+            });
             setName('');
             setQuantity(0);
             setMinQuantity(1);
             setUnit('unidad');
             setNotes('');
+            setCategoryId('');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error al crear producto');
         } finally {
@@ -77,6 +88,19 @@ export function CreateProductForm({ onSubmit }: CreateProductFormProps) {
                 onChange={(e) => setNotes(e.target.value)}
                 className="border rounded px-3 py-2 text-sm"
             />
+
+            <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="border rounded px-3 py-2 text-sm"
+            >
+                <option value="">Sin categoría</option>
+                {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                        {cat.icon ? `${cat.icon} ${cat.name}` : cat.name}
+                    </option>
+                ))}
+            </select>
 
             <button
                 onClick={handleSubmit}

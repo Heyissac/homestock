@@ -4,13 +4,14 @@ import { LoginForm } from './features/auth/components/LoginForm';
 import { RegisterForm } from './features/auth/components/RegisterForm';
 import { isAuthenticated } from './features/auth/services/auth.service';
 import { SpacesPage } from './features/spaces/components/SpacesPage';
+import { ProductsPage } from './features/inventory/components/ProductsPage';
 
 function AuthPage() {
   const [view, setView] = useState<'login' | 'register'>('login');
   const navigate = useNavigate();
 
   function handleSuccess() {
-    navigate('/dashboard');
+    navigate('/spaces');
   }
 
   if (view === 'login') {
@@ -30,17 +31,6 @@ function AuthPage() {
   );
 }
 
-function Dashboard() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-500 mt-2">Auth is working ✅</p>
-      </div>
-    </div>
-  );
-}
-
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -55,10 +45,18 @@ function App() {
         <Route path="/login" element={<AuthPage />} />
         <Route path="/register" element={<Navigate to="/login" replace />} />
         <Route
-          path="/dashboard"
+          path="/spaces"
           element={
             <ProtectedRoute>
               <SpacesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/spaces/:spaceId/products"
+          element={
+            <ProtectedRoute>
+              <ProductsPage />
             </ProtectedRoute>
           }
         />

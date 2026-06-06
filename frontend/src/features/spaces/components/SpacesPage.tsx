@@ -13,6 +13,10 @@ export function SpacesPage() {
         navigate('/login');
     }
 
+    function handleNavigateToProducts(spaceId: string) {
+        navigate(`/spaces/${spaceId}/products`);
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 px-4 py-8">
             <div className="max-w-md mx-auto flex flex-col gap-6">
@@ -40,7 +44,12 @@ export function SpacesPage() {
                 ) : (
                     <div className="flex flex-col gap-3">
                         {spaces.map((space) => (
-                            <SpaceCard key={space.id} space={space} onDelete={removeSpace} />
+                            <SpaceCard
+                                key={space.id}
+                                space={space}
+                                onDelete={removeSpace}
+                                onNavigate={handleNavigateToProducts}
+                            />
                         ))}
                     </div>
                 )}

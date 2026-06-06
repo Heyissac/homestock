@@ -3,9 +3,10 @@ import type { Space } from '../types/space.types';
 interface SpaceCardProps {
     space: Space;
     onDelete: (id: string) => void;
+    onNavigate: (spaceId: string) => void;
 }
 
-export function SpaceCard({ space, onDelete }: SpaceCardProps) {
+export function SpaceCard({ space, onDelete, onNavigate }: SpaceCardProps) {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-3">
             <div className="flex items-start justify-between">
@@ -20,14 +21,23 @@ export function SpaceCard({ space, onDelete }: SpaceCardProps) {
                 </span>
             </div>
 
-            {space.role === 'OWNER' && (
+            <div className="flex items-center justify-between">
                 <button
-                    onClick={() => onDelete(space.id)}
-                    className="self-end text-xs text-red-500 hover:text-red-700 transition-colors"
+                    onClick={() => onNavigate(space.id)}
+                    className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
                 >
-                    Delete
+                    Ver productos →
                 </button>
-            )}
+
+                {space.role === 'OWNER' && (
+                    <button
+                        onClick={() => onDelete(space.id)}
+                        className="text-xs text-red-500 hover:text-red-700 transition-colors"
+                    >
+                        Delete
+                    </button>
+                )}
+            </div>
         </div>
     );
 }

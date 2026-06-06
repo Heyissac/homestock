@@ -29,8 +29,9 @@ model Space {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  members  SpaceMember[]
-  products Product[]
+  members    SpaceMember[]
+  products   Product[]
+  categories Category[]
 }
 
 model SpaceMember {
@@ -51,6 +52,9 @@ model Category {
   name      String
   icon      String?
   createdAt DateTime @default(now())
+
+  spaceId  String
+  space    Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
 
   products Product[]
 }

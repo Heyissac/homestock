@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import type { Category, CreateCategoryInput } from '../types/category.types';
 import * as categoryService from '../services/category.service';
+import {
+    getLocalCategories,
+    saveCategories,
+    saveCategory,
+    deleteLocalCategory,
+    enqueueMutation,
+} from '../../../lib/db';
+import { isOnline } from '../../../lib/sync';
 
 export function useCategories(spaceId: string) {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -15,7 +23,15 @@ export function useCategories(spaceId: string) {
         try {
             setLoading(true);
             setError(null);
+
+            const local = await getLocalCategories(spaceId);
+            if (local.length > 0) {
+                setCategories(local as unknown as Category[]);
+                setLoading(false);
+            }
+
             const data = await categoryService.getCategories(spaceId);
+            await saveCategories(data.categories as unknown as Parameters<typeof saveCategories>[0]);
             setCategories(data.categories);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error al cargar categorías');
@@ -25,12 +41,31 @@ export function useCategories(spaceId: string) {
     }
 
     async function addCategory(input: CreateCategoryInput) {
-        const data = await categoryService.createCategory(spaceId, input);
-        setCategories((prev) => [...prev, data.category]);
+        if (isOnline()) {
+            const data = await categoryService.createCategory(spaceId, input);
+            await saveCategory(data.category as unknown as Parameters<typeof saveCategory>[0]);
+            setCategories((prev) => [...prev, data.category]);
+        } else {
+            const tempCategory: Category = {
+                id: `temp_${crypto.randomUUID()}`,
+                spaceId,
+                name: input.name,
+                icon: input.icon ?? null,
+                createdAt: new Date().toISOString(),
+            };
+            await saveCategory(tempCategory as unknown as Parameters<typeof saveCategory>[0]);
+            await enqueueMutation('categories', 'CREATE', spaceId, { id: tempCategory.id, spaceId, ...input });
+            setCategories((prev) => [...prev, tempCategory]);
+        }
     }
 
     async function removeCategory(categoryId: string) {
-        await categoryService.deleteCategory(spaceId, categoryId);
+        if (isOnline()) {
+            await categoryService.deleteCategory(spaceId, categoryId);
+        } else {
+            await enqueueMutation('categories', 'DELETE', spaceId, { spaceId, categoryId });
+        }
+        await deleteLocalCategory(categoryId);
         setCategories((prev) => prev.filter((c) => c.id !== categoryId));
     }
 

@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LoginForm } from './features/auth/components/LoginForm';
 import { RegisterForm } from './features/auth/components/RegisterForm';
 import { isAuthenticated } from './features/auth/services/auth.service';
 import { SpacesPage } from './features/spaces/components/SpacesPage';
 import { ProductsPage } from './features/inventory/components/ProductsPage';
+import { replayMutations } from './lib/sync';
 
 function AuthPage() {
   const [view, setView] = useState<'login' | 'register'>('login');
@@ -39,6 +40,20 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  useEffect(() => {
+    // Intentar replay al montar — por si la app se abrió con mutaciones pendientes
+    // del session anterior y hay conexión
+    replayMutations();
+
+    // Registrar listener — se dispara cada vez que el browser recupera conexión
+    window.addEventListener('online', replayMutations);
+
+    // Cleanup — remover el listener cuando el componente se desmonte
+    return () => {
+      window.removeEventListener('online', replayMutations);
+    };
+  }, []); // [] — solo se ejecuta al montar App, una sola vez
+
   return (
     <BrowserRouter>
       <Routes>
